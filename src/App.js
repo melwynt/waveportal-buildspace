@@ -28,9 +28,11 @@ function App() {
   const contractABI = abi.abi;
 
   const checkIfWalletIsConnected = async () => {
-    try {
-      const { ethereum } = window;
+    const { ethereum } = window;
+    const { networkVersion } = ethereum;
+    console.log('check wallet', ethereum, networkVersion);
 
+    try {
       if (!ethereum) {
         console.log('Make sure you have MetaMask!');
         return;
@@ -42,7 +44,7 @@ function App() {
 
       if (accounts.length !== 0) {
         const account = accounts[0];
-        console.log('Found an authorized account: ', account);
+        console.log('Found an authorized account.');
         setCurrentAccount(account);
 
         // calling getAllWaves()
@@ -56,9 +58,9 @@ function App() {
   };
 
   const connectWallet = async () => {
-    try {
-      const { ethereum } = window;
+    const { ethereum } = window;
 
+    try {
       if (!ethereum) {
         console.log('Get MetaMask!');
         setModalBox({ open: true, message: 'Get MetaMask!' });
@@ -76,6 +78,35 @@ function App() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const { ethereum } = window;
+    const { networkVersion } = ethereum;
+    const { isMetaMask } = ethereum;
+
+    console.log(`Network Version: ${networkVersion}`);
+
+    if (!isMetaMask) {
+      console.log(
+        'Please connect with MetaMask and select Rinkeby Test Network.'
+      );
+      setModalBox({
+        open: true,
+        message:
+          'Please connect with MetaMask and select Rinkeby Test Network.',
+      });
+      return;
+    }
+
+    if (Number(networkVersion) !== 4) {
+      console.log(
+        'Please change your Network to Rinkeby Test Network and refresh page.'
+      );
+      setModalBox({
+        open: true,
+        message:
+          'Please change your Network to Rinkeby Test Network and refresh page.',
+      });
+      return;
+    }
 
     if (messageRef.current.value === '') {
       console.log('Message cannot be empty.');
@@ -84,8 +115,6 @@ function App() {
     }
 
     try {
-      const { ethereum } = window;
-
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
@@ -98,7 +127,10 @@ function App() {
         let count = await wavePortalContract.getTotalWaves();
         console.log('Retrieved total wave count...', count.toNumber());
 
-        const waveTxn = await wavePortalContract.wave(messageRef.current.value);
+        const waveTxn = await wavePortalContract.wave(
+          messageRef.current.value,
+          { gasLimit: 300000 }
+        );
         console.log('Mining...', waveTxn.hash);
         setSent(true);
         setThankyouMessage(
@@ -108,7 +140,7 @@ function App() {
 
         await waveTxn.wait();
         console.log('Mined -- ', waveTxn.hash);
-        setThankyouMessage(`Your message is now in the blockchain!`);
+        setThankyouMessage(`Your message is now in the blockchain! 👇`);
 
         count = await wavePortalContract.getTotalWaves();
         console.log('Retrieved total wave count...', count.toNumber());
@@ -121,8 +153,19 @@ function App() {
   };
 
   const getAllWaves = async () => {
+    const { ethereum } = window;
+    const { networkVersion } = ethereum;
+    console.log('get all waves.', ethereum, networkVersion);
+
+    if (Number(networkVersion) !== 4) {
+      console.log(
+        'Please change your Network to Rinkeby Test Network and refresh page.'
+      );
+
+      return;
+    }
+
     try {
-      const { ethereum } = window;
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
@@ -144,7 +187,20 @@ function App() {
           });
         });
 
-        setAllWaves(wavesCleaned);
+        setAllWaves(wavesCleaned.reverse());
+
+        wavePortalContract.on('NewWave', (from, timestamp, message) => {
+          console.log(from, timestamp, messageRef);
+
+          setAllWaves((prevState) => [
+            {
+              address: from,
+              timestamp: new Date(timestamp),
+              message: message,
+            },
+            ...prevState,
+          ]);
+        });
       } else {
         console.log("Ethereum object doesn't exist.");
       }
@@ -205,14 +261,7 @@ function App() {
         )}
         {allWaves.map((wave, index) => {
           return (
-            <div
-              key={index}
-              style={{
-                backgroundColor: 'OldLace',
-                marginTop: '16px',
-                padding: '8px',
-              }}
-            >
+            <div key={index} className="wave">
               <div>Address: {wave.address}</div>
               <div>Time: {wave.timestamp.toString()}</div>
               <div>Message: {wave.message}</div>
