@@ -222,8 +222,33 @@ function App() {
         </div>
 
         <div className="bio">
-          I am Melwyn and I work on cool projects deployed on web3 technologies!
-          Connect your Ethereum wallet and wave at me!
+          I am{' '}
+          <a
+            href="https://twitter.com/melwyntee"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Melwyn
+          </a>{' '}
+          and I work on cool projects deployed on web3 technologies!
+          <br />
+          Connect your MetaMask wallet, 👋 send me a message and if you are
+          lucky enough you'll receive some 🤑 Eth!
+          <br />
+          <br />
+          <span style={{ color: 'gray', fontSize: '12px' }}>
+            This is deployed on Rinkeby Test Network and you can get free (
+            <del>fake</del>) Eth here{' '}
+            <a
+              href="https://app.mycrypto.com/faucet"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              https://app.mycrypto.com/faucet
+            </a>{' '}
+            (make sure to connect your wallet to the site and click on this link
+            again)
+          </span>
           <br />
           <br />
         </div>
