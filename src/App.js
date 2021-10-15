@@ -200,7 +200,7 @@ function App() {
           setAllWaves((prevState) => [
             {
               address: from,
-              timestamp: new Date(timestamp),
+              timestamp: new Date(timestamp * 1000),
               message: message,
             },
             ...prevState,
