@@ -29,8 +29,9 @@ function App() {
 
   const checkIfWalletIsConnected = async () => {
     const { ethereum } = window;
-    const { networkVersion } = ethereum;
-    console.log('check wallet', ethereum, networkVersion);
+
+    const networkVersion = ethereum ? ethereum.networkVersion : null;
+    console.log('Network Version: ', networkVersion);
 
     try {
       if (!ethereum) {
@@ -79,8 +80,11 @@ function App() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const { ethereum } = window;
-    const { networkVersion } = ethereum;
-    const { isMetaMask } = ethereum;
+    // const { networkVersion } = ethereum;
+    const networkVersion = ethereum ? ethereum.networkVersion : null;
+
+    // const { isMetaMask } = ethereum;
+    const isMetaMask = ethereum ? ethereum.isMetaMask : null;
 
     console.log(`Network Version: ${networkVersion}`);
 
@@ -154,7 +158,8 @@ function App() {
 
   const getAllWaves = async () => {
     const { ethereum } = window;
-    const { networkVersion } = ethereum;
+    // const { networkVersion } = ethereum;
+    const networkVersion = ethereum ? ethereum.networkVersion : null;
     console.log('get all waves.', ethereum, networkVersion);
 
     if (Number(networkVersion) !== 4) {
@@ -247,7 +252,7 @@ function App() {
               https://app.mycrypto.com/faucet
             </a>{' '}
             (make sure to connect your wallet to the site and click on this link
-            again)
+            agains)
           </span>
           <br />
           <br />
